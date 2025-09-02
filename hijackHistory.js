@@ -1,54 +1,44 @@
-// hijackHistory.js
-// 通用工具：劫持 history.pushState 和 popstate 事件
-// 不会拦截 replaceState（可安全用于 URL 清理）
-
+// hijackHistory.js (test 分支调试版)
+// 劫持 history.pushState 和 popstate
 (function () {
     'use strict';
 
     if (window.hijackHistory) return;
 
-    /**
-     * 劫持 history.pushState 和 popstate
-     * @param {Function} callback 回调函数，接收参数 { type, args, url, event? }
-     * @returns {Function} restore 函数，用于恢复原始行为
-     */
     window.hijackHistory = function (callback) {
         const originalPush = history.pushState;
 
-        // 只劫持 pushState
-        history.pushState = function (...args) {
-            const ret = originalPush.apply(this, args);
-            try {
-                callback({
-                    type: 'pushState',
-                    args,
-                    url: location.href
-                });
-            } catch (err) {
-                console.error('[hijackHistory] pushState callback error:', err);
-            }
+        const wrap = fn => function (...args) {
+            const ret = fn.apply(this, args);
+            // 回调信息
+            callback({
+                type: fn.name,
+                args: args,
+                url: location.href
+            });
+            console.log(`[hijackHistory:test] ${fn.name} called`, args, 'URL:', location.href);
             return ret;
         };
 
-        // 劫持 popstate 事件
+        // 只劫持 pushState
+        history.pushState = wrap(originalPush);
+
+        // popstate 事件
         const popHandler = e => {
-            try {
-                callback({
-                    type: 'popstate',
-                    event: e,
-                    url: location.href
-                });
-            } catch (err) {
-                console.error('[hijackHistory] popstate callback error:', err);
-            }
+            callback({
+                type: 'popstate',
+                event: e,
+                url: location.href
+            });
+            console.log('[hijackHistory:test] popstate event', e, 'URL:', location.href);
         };
         window.addEventListener('popstate', popHandler);
 
-        // 提供 restore 函数
+        // 返回 restore 函数，可取消劫持
         return () => {
             history.pushState = originalPush;
             window.removeEventListener('popstate', popHandler);
-            console.log('[hijackHistory] restored original history methods');
+            console.log('[hijackHistory:test] restore original history methods');
         };
     };
 })();
