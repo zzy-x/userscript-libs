@@ -1,0 +1,15 @@
+/* 右上角固定按钮 */
+#fixed-tr-btn {
+    position: fixed;
+    top: 100px;
+    right: 20px;
+    z-index: 9999;
+    padding: 10px 15px;
+    background-color: #0078D7;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    font-size: 14px;
+}
