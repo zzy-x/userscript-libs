@@ -1,5 +1,5 @@
 /* 右上角固定按钮 */
-#fixed-tr-btn {
+.fixed-tr-btn {
     position: fixed;
     top: 100px;
     right: 20px;
