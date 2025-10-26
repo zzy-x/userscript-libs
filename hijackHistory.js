@@ -43,8 +43,9 @@
         if (pushState) history.pushState = wrap(original.push, 'pushState');
         if (replaceState) history.replaceState = wrap(original.replace, 'replaceState');
 
+        // 劫持 popstate
         let popHandler = null;
-        if (popstate) {
+        if (events.includes('popstate')) {
             popHandler = e => {
                 callback({
                     type: 'popstate',
@@ -57,8 +58,8 @@
         }
 
         return () => {
-            if (pushState) history.pushState = original.push;
-            if (replaceState) history.replaceState = original.replace;
+            if (events.includes('pushState')) history.pushState = original.push;
+            if (events.includes('replaceState')) history.replaceState = original.replace;
             if (popHandler) window.removeEventListener('popstate', popHandler);
             if (debug) console.log('[hijackHistory] restore original history methods');
         };
